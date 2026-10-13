@@ -9,6 +9,7 @@ const leadRoutes = require('./routes/leadRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const quotationRoutes = require('./routes/quotationRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
 
 const app = express();
 
@@ -69,6 +70,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/quotations', quotationRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 // Root ping
 app.get('/', (req, res) => {
