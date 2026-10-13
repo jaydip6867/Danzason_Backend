@@ -15,10 +15,11 @@ app.use(cookieParser());
 
 // CORS configuration supporting cookies and headers
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:3000',
+  process.env.CLIENT_URL,
+  'https://danzason-frontend.vercel.app',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-];
+].filter(Boolean);
 
 app.use(
   cors({
