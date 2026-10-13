@@ -5,6 +5,10 @@ const mongoose = require('mongoose');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const leadRoutes = require('./routes/leadRoutes');
+const customerRoutes = require('./routes/customerRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const quotationRoutes = require('./routes/quotationRoutes');
 
 const app = express();
 
@@ -61,6 +65,10 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/leads', leadRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/quotations', quotationRoutes);
 
 // Root ping
 app.get('/', (req, res) => {
