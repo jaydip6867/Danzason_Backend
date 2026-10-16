@@ -67,6 +67,12 @@ const userSchema = new mongoose.Schema(
         edit: { type: Boolean, default: false },
         delete: { type: Boolean, default: false },
       },
+      purchases: {
+        view: { type: Boolean, default: true },
+        create: { type: Boolean, default: true },
+        edit: { type: Boolean, default: true },
+        delete: { type: Boolean, default: false },
+      },
     },
     isActive: {
       type: Boolean,
