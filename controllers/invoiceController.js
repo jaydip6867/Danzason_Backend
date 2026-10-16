@@ -206,9 +206,9 @@ const deleteInvoice = async (req, res, next) => {
 const recordPayment = async (req, res, next) => {
   try {
     const { amount, paymentMethod, referenceNumber, notes, paymentDate } = req.body;
-    const paymentAmount = Number(amount);
+    const paymentAmount = Math.round(Number(amount) * 100) / 100;
 
-    if (!paymentAmount || paymentAmount <= 0) {
+    if (isNaN(paymentAmount) || paymentAmount <= 0) {
       return res.status(400).json({ success: false, message: 'Please provide a valid payment amount greater than 0' });
     }
 
@@ -217,19 +217,25 @@ const recordPayment = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Invoice not found' });
     }
 
-    if (invoice.balanceDue <= 0) {
+    const currentBalance = Math.round(Number(invoice.balanceDue || 0) * 100) / 100;
+
+    if (currentBalance <= 0) {
       return res.status(400).json({ success: false, message: 'This invoice is already fully paid.' });
     }
 
-    if (paymentAmount > invoice.balanceDue) {
+    // Allow 0.01 tolerance for floating point rounding differences
+    if (paymentAmount > currentBalance + 0.01) {
       return res.status(400).json({
         success: false,
-        message: `Payment amount (₹${paymentAmount}) cannot exceed balance due (₹${invoice.balanceDue})`,
+        message: `Payment amount (₹${paymentAmount.toFixed(2)}) cannot exceed balance due (₹${currentBalance.toFixed(2)})`,
       });
     }
 
+    // Cap payment to currentBalance if within tolerance
+    const finalPayment = paymentAmount > currentBalance ? currentBalance : paymentAmount;
+
     const newPayment = {
-      amount: paymentAmount,
+      amount: finalPayment,
       paymentMethod: paymentMethod || 'Bank Transfer',
       referenceNumber: referenceNumber || '',
       notes: notes || '',
@@ -238,8 +244,9 @@ const recordPayment = async (req, res, next) => {
     };
 
     invoice.payments.push(newPayment);
-    invoice.amountPaid = Math.round((invoice.amountPaid + paymentAmount) * 100) / 100;
-    invoice.balanceDue = Math.max(0, Math.round((invoice.grandTotal - invoice.amountPaid) * 100) / 100);
+    invoice.amountPaid = Math.round(((invoice.amountPaid || 0) + finalPayment) * 100) / 100;
+    const remainingBalance = Math.round(((invoice.grandTotal || 0) - invoice.amountPaid) * 100) / 100;
+    invoice.balanceDue = remainingBalance <= 0.009 ? 0 : remainingBalance;
 
     if (invoice.balanceDue === 0) {
       invoice.paymentStatus = 'Paid';

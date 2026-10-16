@@ -10,7 +10,7 @@ const invoiceItemSchema = new mongoose.Schema({
 });
 
 const paymentRecordSchema = new mongoose.Schema({
-  amount: { type: Number, required: true, min: 1 },
+  amount: { type: Number, required: true, min: 0.01 },
   paymentDate: { type: Date, default: Date.now },
   paymentMethod: {
     type: String,
